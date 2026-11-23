@@ -68,3 +68,18 @@ dev`. Every environment variable has a working default, and `.env.example` docum
   ring around the whole card. After navigation, focus moves to the new page's `<h1>`.
 - **Considered:** wrapping the whole card in `<a>`. Screen readers would then read the name, price,
   rating and stock as one long link name, and nested interactive content would be invalid.
+
+## D2-3 UI states
+
+- **Used:** `toRequestState()` (`src/lib/queryState.ts`) turns an RTK Query result into the
+  `RequestState` union, and one `<AsyncView>` component (`src/components/AsyncView.tsx`) renders
+  each state the same way on every page: a skeleton plus a `role="status"` announcement while
+  loading, an `EmptyState`, an `ErrorState` (`role="alert"`) with a **Try again** button that calls
+  `refetch()`, or the content. A 404 renders the Not Found page instead.
+- **How to trigger each state:** loading (Mock controls → latency 3000 ms), empty (search
+  `zzz`), error (force `GET /api/products` → 500), not found (`/products/nope`).
+- **Considered:** letting each page check `isLoading`/`isError` itself. That is how pages drift
+  apart: one forgets the retry button, another shows a blank screen on error. A `switch` over the
+  union means TypeScript complains if a state is left out.
+- `role="status"` over `<output>`: `<output>` is meant for the result of a calculation in a form,
+  so I turned off oxlint's `prefer-tag-over-role` rule.

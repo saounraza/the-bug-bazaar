@@ -1,5 +1,8 @@
-import { useGetProductsInfiniteQuery, type ProductFilters } from './productsApi';
+import { AsyncView } from '../../components/AsyncView';
+import { EmptyState, GridSkeleton } from '../../components/StatusViews';
+import { toRequestState } from '../../lib/queryState';
 import { ProductGrid } from './ProductGrid';
+import { useGetProductsInfiniteQuery, type ProductFilters } from './productsApi';
 
 const DEFAULT_FILTERS: ProductFilters = {
   search: '',
@@ -9,36 +12,39 @@ const DEFAULT_FILTERS: ProductFilters = {
 };
 
 export function ProductListPage() {
-  const { currentData, isError, hasNextPage, fetchNextPage, isFetchingNextPage, refetch } =
-    useGetProductsInfiniteQuery(DEFAULT_FILTERS);
-
-  const products = currentData?.pages.flatMap((page) => page.items) ?? [];
-  const total = currentData?.pages[0]?.total ?? 0;
+  const query = useGetProductsInfiniteQuery(DEFAULT_FILTERS);
+  const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } = query;
 
   return (
     <section>
       <h1 tabIndex={-1}>Shop developer gear</h1>
-      {isError && (
-        <p role="alert">
-          Could not load products. <button onClick={() => void refetch()}>Try again</button>
-        </p>
-      )}
-      {!currentData && !isError && <p>Loading products…</p>}
-      {currentData && (
-        <>
-          <p className="result-count">{total.toLocaleString()} products</p>
-          <ProductGrid products={products} />
-          {hasNextPage && (
-            <button
-              className="button"
-              disabled={isFetchingNextPage}
-              onClick={() => void fetchNextPage()}
-            >
-              {isFetchingNextPage ? 'Loading…' : 'Load more'}
-            </button>
-          )}
-        </>
-      )}
+      <AsyncView
+        state={toRequestState(query)}
+        loadingLabel="Loading products"
+        skeleton={<GridSkeleton />}
+        onRetry={() => void refetch()}
+        isEmpty={(data) => (data.pages[0]?.total ?? 0) === 0}
+        empty={<EmptyState title="No products found" message="Try a different search or filter." />}
+      >
+        {(data) => (
+          <>
+            <p className="result-count" aria-live="polite">
+              {(data.pages[0]?.total ?? 0).toLocaleString()} products
+            </p>
+            <ProductGrid products={data.pages.flatMap((page) => page.items)} />
+            {hasNextPage && (
+              <button
+                type="button"
+                className="button"
+                disabled={isFetchingNextPage}
+                onClick={() => void fetchNextPage()}
+              >
+                {isFetchingNextPage ? 'Loading…' : 'Load more'}
+              </button>
+            )}
+          </>
+        )}
+      </AsyncView>
     </section>
   );
 }

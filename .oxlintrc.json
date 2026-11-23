@@ -40,7 +40,8 @@
         "name": "XMLHttpRequest",
         "message": "Use request() from src/api/client.ts."
       }
-    ]
+    ],
+    "jsx-a11y/prefer-tag-over-role": "off"
   },
   "ignorePatterns": ["dist", "public/mockServiceWorker.js"],
   "overrides": [
