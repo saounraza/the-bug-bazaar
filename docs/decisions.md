@@ -294,3 +294,14 @@ dev`. Every environment variable has a working default, and `.env.example` docum
     answers `101 Switching Protocols`, and the same TCP connection becomes a full-duplex message
     channel with no per-message HTTP headers. You have to handle reconnects, heartbeats and
     backpressure yourself, and load balancers need sticky or long-lived connection support.
+
+## D4-2 Performance
+
+- **Measured first, in a production build:** Chrome long tasks plus DOM size while 3,000 products
+  receive live stock updates, and a Node timing harness for the list endpoint. Numbers, method and
+  caveats are in [performance.md](performance.md).
+- **The two slowest spots, both fixed:** (1) each live stock update re-rendered all loaded cards
+  (130 ms median long task → none), and (2) each list request sorted 5,000 products on the main
+  thread (name sort 29.7 ms → 0.12 ms median).
+- **Considered:** optimizing by guesswork (adding `useMemo` everywhere). Measuring showed the cost
+  was in two specific places, and showed that flattening pages, the obvious candidate, costs 0.065 ms.

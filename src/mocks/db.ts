@@ -94,18 +94,37 @@ const compare: Record<NonNullable<ProductQuery['sort']>, (a: Product, b: Product
   'name-asc': (a, b) => a.name.localeCompare(b.name),
 };
 
+// Performance (docs/performance.md, fix 2): name, price, rating and id never
+// change, so each sort order is computed once and cached as a list of ids,
+// and names are lower-cased once for search. A request then only filters an
+// already-sorted list: no per-request sort (localeCompare over 5,000 names
+// took ~30 ms) and no per-request toLowerCase.
+const lowerNames = new Map(seeded.map((product) => [product.id, product.name.toLowerCase()]));
+const sortedIds = new Map<NonNullable<ProductQuery['sort']>, string[]>();
+
+function idsSortedBy(sort: NonNullable<ProductQuery['sort']>): string[] {
+  let ids = sortedIds.get(sort);
+  if (!ids) {
+    ids = [...seeded].sort(compare[sort]).map((product) => product.id);
+    sortedIds.set(sort, ids);
+  }
+  return ids;
+}
+
 export function queryProducts(query: ProductQuery): { items: Product[]; total: number } {
   const search = query.search?.trim().toLowerCase() ?? '';
   const page = Math.max(1, query.page ?? 1);
   const pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, query.pageSize ?? DEFAULT_PAGE_SIZE));
 
-  const matches = allProducts().filter(
-    (product) =>
-      (!search || product.name.toLowerCase().includes(search)) &&
-      (!query.category || product.category === query.category) &&
-      (!query.inStock || product.stock > 0),
-  );
-  matches.sort(compare[query.sort ?? 'featured']);
+  const matches: Product[] = [];
+  for (const id of idsSortedBy(query.sort ?? 'featured')) {
+    const product = products.get(id);
+    if (!product) continue;
+    if (search && !lowerNames.get(id)?.includes(search)) continue;
+    if (query.category && product.category !== query.category) continue;
+    if (query.inStock && product.stock <= 0) continue;
+    matches.push(product);
+  }
 
   const start = (page - 1) * pageSize;
   return { items: matches.slice(start, start + pageSize), total: matches.length };

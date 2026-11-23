@@ -41,7 +41,8 @@
         "message": "Use request() from src/api/client.ts."
       }
     ],
-    "jsx-a11y/prefer-tag-over-role": "off"
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "react/incompatible-library": "off"
   },
   "ignorePatterns": ["dist", "public/mockServiceWorker.js"],
   "overrides": [
@@ -61,7 +62,8 @@
     {
       "files": ["perf/**", "scripts/**"],
       "rules": {
-        "no-console": "off"
+        "no-console": "off",
+        "no-underscore-dangle": "off"
       }
     }
   ]
