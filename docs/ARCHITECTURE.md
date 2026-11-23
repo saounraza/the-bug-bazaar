@@ -123,6 +123,12 @@ The filters are never in Redux or `useState`. `useProductFilters()` parses them 
 
 ## Design patterns used
 
+| Pattern                    | Main files                                                          | Problem it solves                                                    |
+| -------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Adapter                    | `api/baseApi.ts`, `api/errors.ts`, `lib/queryState.ts`              | Keep HTTP, RTK Query flags and server error shapes out of components |
+| Container / presentational | `*Page.tsx` vs `ProductCard`, `Price`, `StatusViews`, `AsyncView`   | Reuse UI across pages; make memoization and testing easy             |
+| Custom hooks               | `hooks/*`, `useProductFilters`, `useProductDetails`, `useStockFeed` | One owner per side effect and its cleanup                            |
+
 ### 1. Adapter: `baseQuery` over `request()`, and `toRequestState()`
 
 - **Where:** `src/api/baseApi.ts` (RTK Query's `BaseQueryFn` → our `request()`),
