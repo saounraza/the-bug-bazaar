@@ -126,8 +126,8 @@ dev`. Every environment variable has a working default, and `.env.example` docum
   `currentData`, which only ever holds data for the current `id`, so a late response for an old
   product is cached under its own id and never shown.
 - **StrictMode gotcha:** in development React mounts, unmounts and remounts every effect. Aborting
-  straight away in cleanup would cancel the request the remounted effect is waiting on (the page
-  showed "Request cancelled"). The abort is deferred to a microtask and skipped when an effect for
+  straight away in cleanup would cancel the request the remounted effect is waiting on, and the
+  page would get stuck on an aborted request. The abort is deferred to a microtask and skipped when an effect for
   the same id has taken over. Real switches and unmounts still abort. I logged this in
   `ai-notes.md`.
 - **Listeners and timers:** Back to Top uses `useEventListener('scroll', …, { passive: true })`,
@@ -136,3 +136,25 @@ dev`. Every environment variable has a working default, and `.env.example` docum
 - **Considered:** the classic `let ignore = true` flag in `useEffect`. It stops a stale response
   from being _shown_, but the request still runs to completion. `AbortController` actually cancels
   it, and the cache keyed by id makes the "ignore" part automatic.
+
+## D2-6 Race conditions
+
+- **Simulating it:** Mock controls → "Random search latency" adds 0 to 2000 ms to every product
+  list response, so an older query can finish after a newer one. The test
+  `raceConditions.test.tsx` makes it deterministic: "du" takes 800 ms and "duck" takes 50 ms.
+- **What prevents wrong results, in three layers:**
+  1. **Cache keyed by query.** RTK Query stores each response under the exact arguments that
+     produced it. A late "du" response lands in the "du" entry, and the page only reads the entry
+     for the current URL, so the order responses arrive in can't matter.
+  2. **`currentData`, not `data`.** While "duck" is loading, `data` would still hold the "du" items,
+     shown under a "results for duck" heading. `currentData` is `undefined` until the current
+     query's own response arrives, so the page shows a skeleton instead.
+  3. **Debouncing** (300 ms) means fast typing sends one request, not one per keystroke. That
+     reduces load, but it is _not_ the fix on its own: a pause mid-word still sends two requests.
+- **Proving the tests test something:** I swapped `currentData` for `data` and re-ran. The
+  out-of-order test still passed (layer 1 covers it) but the loading test failed. That told me
+  which mechanism each test actually guards, so I kept both.
+- **Considered:** aborting the previous search with `AbortController`, as the details page does.
+  It saves bandwidth, but the old response is already harmless here, and keeping it cached makes
+  Back to a previous search instant. A hand-rolled version would use a request counter
+  (`if (id !== latestId) return`) or an abort, and both are explained in `glossary.md`.
