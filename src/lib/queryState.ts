@@ -20,6 +20,8 @@ export function toRequestState<T>(query: QueryLike<T>): RequestState<T, AppError
   if (query.isUninitialized) return { status: 'idle' };
   if (query.isError && !query.isFetching) {
     const error = isAppError(query.error) ? query.error : { kind: 'server' as const, status: 0 };
+    // An aborted request was cancelled by us (e.g. StrictMode remount); a new one follows.
+    if (error.kind === 'aborted') return { status: 'loading' };
     return { status: 'error', error };
   }
   if (query.currentData !== undefined) return { status: 'success', data: query.currentData };

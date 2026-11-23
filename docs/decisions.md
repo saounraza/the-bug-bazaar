@@ -116,3 +116,23 @@ dev`. Every environment variable has a working default, and `.env.example` docum
 - **Considered:** Redux or `useState` for filters, synced to the URL with an effect. That gives
   two sources of truth and sync bugs (Back changes the URL but not the state). Keeping only the URL
   avoids the whole class.
+
+## D2-4 useEffect and cleanup
+
+- **Used:** `useProductDetails(id)` subscribes to the product with
+  `dispatch(getProduct.initiate(id))` in an effect. Its cleanup **unsubscribes and aborts** the
+  request if it is still running. RTK Query passes an `AbortSignal` through our `baseQuery` into
+  `fetch`, so the browser really cancels the HTTP request (a test checks this). The page reads
+  `currentData`, which only ever holds data for the current `id`, so a late response for an old
+  product is cached under its own id and never shown.
+- **StrictMode gotcha:** in development React mounts, unmounts and remounts every effect. Aborting
+  straight away in cleanup would cancel the request the remounted effect is waiting on (the page
+  showed "Request cancelled"). The abort is deferred to a microtask and skipped when an effect for
+  the same id has taken over. Real switches and unmounts still abort. I logged this in
+  `ai-notes.md`.
+- **Listeners and timers:** Back to Top uses `useEventListener('scroll', …, { passive: true })`,
+  which removes the listener on unmount (also tested). The debounce timer, the order-status polling
+  and the live stock socket all stop in their own cleanup.
+- **Considered:** the classic `let ignore = true` flag in `useEffect`. It stops a stale response
+  from being _shown_, but the request still runs to completion. `AbortController` actually cancels
+  it, and the cache keyed by id makes the "ignore" part automatic.

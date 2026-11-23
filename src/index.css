@@ -889,3 +889,7 @@ input[aria-invalid='true'] {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+
+.related {
+  margin-top: 2.5rem;
+}
