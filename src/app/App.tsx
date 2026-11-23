@@ -7,7 +7,9 @@ import { makeStore } from './store';
 
 export function App() {
   const [store] = useState(() => makeStore(loadPersistedState()));
-  const [router] = useState(() => createBrowserRouter(routes));
+  const [router] = useState(() =>
+    createBrowserRouter(routes, { basename: import.meta.env.BASE_URL }),
+  );
   return (
     <Provider store={store}>
       <RouterProvider router={router} />

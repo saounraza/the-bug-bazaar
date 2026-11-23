@@ -62,7 +62,7 @@ export function CrashFallback({ onReset }: { onReset?: () => void }) {
             Try again
           </button>
         )}
-        <a className="button button--secondary" href="/">
+        <a className="button button--secondary" href={import.meta.env.BASE_URL}>
           Back to the shop
         </a>
       </div>

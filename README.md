@@ -54,3 +54,20 @@ src/
   mocks/        Mock backend: seed data, HTTP + WebSocket handlers, chaos controls
 docs/           Written tasks and decision records
 ```
+
+## Continuous integration
+
+Every pull request runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml): format check, lint,
+typecheck, tests and a production build. Pushes to `main` also deploy to GitHub Pages
+([`deploy.yml`](.github/workflows/deploy.yml)).
+
+### Branch protection (one-time setup, repo admin)
+
+The workflow reports pass or fail. To make a failing check **block the merge**:
+
+1. GitHub → **Settings → Branches → Add branch ruleset** (or "Add rule") for `main`.
+2. Turn on **Require status checks to pass before merging** and select
+   **Lint, typecheck, test, build**.
+3. Turn on **Require a pull request before merging**.
+
+For the deploy: **Settings → Pages → Source: GitHub Actions**.

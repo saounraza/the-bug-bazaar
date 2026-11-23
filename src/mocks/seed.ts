@@ -145,7 +145,8 @@ export function seedProducts(count = PRODUCT_COUNT, seed = 42): Product[] {
       stock: outOfStock ? 0 : between(random, 1, 40),
       // Ratings skew positive like real stores: 2.5 to 5.0, one decimal.
       rating: Math.round((2.5 + random() * 2.5) * 10) / 10,
-      imageUrl: `/images/${category}-${between(random, 1, 4)}.svg`,
+      // BASE_URL is "/" locally and "/the-bug-bazaar/" on GitHub Pages.
+      imageUrl: `${import.meta.env.BASE_URL}images/${category}-${between(random, 1, 4)}.svg`,
     });
   }
 

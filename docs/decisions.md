@@ -382,3 +382,22 @@ dev`. Every environment variable has a working default, and `.env.example` docum
 - **Considered:** Playwright end-to-end tests. They'd add real-browser coverage (layout, the
   service worker), but they're slower and need a browser in CI. Integration tests against MSW gave
   most of the confidence for much less cost. The Lighthouse run covers the built page.
+
+## D4-6 Git / CI / CD
+
+- **Used:** GitHub Actions. `ci.yml` runs on every pull request (and on pushes to `main` and
+  `develop`): `npm ci` → `format:check` → `lint` → `typecheck` → `test` → `build`, each a separate
+  step so a red check says exactly what broke. `concurrency` cancels outdated runs on the same
+  branch.
+- **A failing test blocks the merge:** CI reports a failed status, and **branch protection** on
+  `main` must require the `Lint, typecheck, test, build` check to pass before merging (see README,
+  "Branch protection"). The workflow alone only reports; the rule is what blocks the merge.
+- **Bonus deploy:** `deploy.yml` runs the checks again on every push to `main`, builds with
+  `BASE_PATH=/<repo>/`, copies `index.html` to `404.html` (GitHub Pages has no SPA fallback, so deep
+  links would 404 on refresh), and publishes with `actions/deploy-pages`. The app reads
+  `import.meta.env.BASE_URL` for the router `basename`, image URLs and the service worker path, so
+  it works under a sub-path. The mock API runs in the browser, so the deployed store needs no
+  server at all.
+- **Considered:** Vercel or Netlify (zero-config previews for every PR, but they need a
+  third-party account), and running Lighthouse in CI (useful, but slow and noisy on shared
+  runners, so it's a manual `npm run a11y` for now).
