@@ -57,6 +57,12 @@
       "rules": {
         "no-restricted-globals": "off"
       }
+    },
+    {
+      "files": ["perf/**", "scripts/**"],
+      "rules": {
+        "no-console": "off"
+      }
     }
   ]
 }

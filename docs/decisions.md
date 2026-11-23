@@ -264,3 +264,33 @@ dev`. Every environment variable has a working default, and `.env.example` docum
 - **Considered:** TanStack Query (very similar, but RTK Query is already in the store for D3-1),
   and hand-rolled caching in a slice (it would mean re-implementing de-duplication, expiry and
   invalidation).
+
+## D4-4 WebSockets (live stock)
+
+- **Used:** a real `WebSocket` in the browser (`src/api/stockFeed.ts`), answered by MSW's
+  WebSocket interception (`ws.link` in `src/mocks/stockSocket.ts`). The client subscribes to the
+  product ids it is showing, and the server pushes `{ type: 'stock', productId, stock }` when
+  stock changes.
+- **Updating the UI:** `stockChanged()` patches every cached copy of the product with
+  `updateQueryData` (its details entry and any list page containing it) and updates the cart's
+  quantity limit. There is no refetch, and the page re-renders from the cache.
+- **Recovers after a disconnect:** an unexpected `close` schedules a reconnect with exponential
+  backoff and jitter (1 s, 2 s, 4 s … up to 15 s), and the subscription is re-sent on reconnect. The
+  `online` event skips the wait. A status pill shows Live, Reconnecting or Paused (`role="status"`,
+  so screen readers hear it). Try it: Mock controls → **Drop live connection**.
+- **Stops when the page closes:** `useStockFeed` closes the socket and cancels any pending
+  reconnect timer on unmount and on `pagehide`, and reopens on `pageshow` from the back/forward
+  cache. The mock server stops its ticker when no clients are left. Tests cover all three
+  behaviours (live update, reconnect plus re-subscribe, close on leaving the page).
+- **Considered:**
+  - **Polling** `GET /api/products/:id` every few seconds: simplest and works through any proxy,
+    but it is wasteful (most polls return nothing new) and always late by up to one interval.
+    Good enough for the order status page, where I did use polling.
+  - **Server-Sent Events:** one-way server → client over plain HTTP, with automatic reconnect built
+    in. A very good fit for stock, which only flows one way. I'd pick SSE in production if the
+    backend offered it. I picked WebSockets because the brief names them, and because the
+    client → server `subscribe` message is natural on a two-way channel.
+  - **How WebSockets work:** the client sends an HTTP `GET` with `Upgrade: websocket`, the server
+    answers `101 Switching Protocols`, and the same TCP connection becomes a full-duplex message
+    channel with no per-message HTTP headers. You have to handle reconnects, heartbeats and
+    backpressure yourself, and load balancers need sticky or long-lived connection support.

@@ -10,6 +10,7 @@ import {
 } from '../api/types';
 import { getChaos, type EndpointKey } from './chaos';
 import * as db from './db';
+import { stockSocketHandler } from './stockSocket';
 
 // `*` matches any origin, so the same handlers work in the browser, in Node
 // tests, and with any VITE_API_BASE_URL.
@@ -190,4 +191,6 @@ export const handlers = [
     const order = forced === 404 ? undefined : db.getOrder(String(params.id), user.id);
     return order ? HttpResponse.json(order) : notFound('Order');
   }),
+
+  stockSocketHandler,
 ];

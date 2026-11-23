@@ -32,7 +32,7 @@ describe('search race conditions', () => {
 
     await wait(900); // now the stale "du" response arrives
     expect(completed).toEqual(['', 'duck', 'du']);
-    expect(screen.getByRole('status')).toHaveTextContent(/for “duck”/);
+    expect(screen.getByText(/results for “duck”/)).toBeInTheDocument();
     expect(screen.queryByText(/for “du”/)).not.toBeInTheDocument();
   });
 

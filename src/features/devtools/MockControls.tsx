@@ -11,6 +11,7 @@ import {
   type EndpointKey,
 } from '../../mocks/chaos';
 import { resetDb, revokeAllSessions } from '../../mocks/db';
+import { dropAllStockClients } from '../../mocks/stockSocket';
 import { cartCleared } from '../cart/cartSlice';
 import { mockControlEvents } from './mockControlEvents';
 
@@ -102,7 +103,7 @@ export default function MockControls() {
             <button
               type="button"
               className="button button--secondary button--small"
-              onClick={() => mockControlEvents.emit('drop-stock-feed')}
+              onClick={dropAllStockClients}
             >
               Drop live connection
             </button>

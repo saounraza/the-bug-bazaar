@@ -6,7 +6,9 @@ import { toRequestState } from '../../lib/queryState';
 import { FilterBar } from './FilterBar';
 import { ProductGrid } from './ProductGrid';
 import { useGetProductsInfiniteQuery } from './productsApi';
+import { LiveStatus } from './LiveStatus';
 import { useProductFilters } from './useProductFilters';
+import { useStockFeed } from './useStockFeed';
 
 function resultLabel(total: number, search: string): string {
   const count = `${total.toLocaleString()} ${total === 1 ? 'result' : 'results'}`;
@@ -19,6 +21,9 @@ export function ProductListPage() {
   const { filters, updateFilters, clearFilters, isFiltered } = useProductFilters();
   const query = useGetProductsInfiniteQuery(filters);
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } = query;
+  const products = query.currentData?.pages.flatMap((page) => page.items) ?? [];
+  // Live updates for the first products in the list (the server caps a subscription at 500).
+  const liveStatus = useStockFeed(products.slice(0, 500).map((product) => product.id));
 
   return (
     <section>
@@ -53,11 +58,9 @@ export function ProductListPage() {
               <p className="result-count" role="status">
                 {resultLabel(data.pages[0]?.total ?? 0, filters.search.trim())}
               </p>
+              <LiveStatus status={liveStatus} />
             </div>
-            <ProductGrid
-              products={data.pages.flatMap((page) => page.items)}
-              listSearch={listSearch}
-            />
+            <ProductGrid products={products} listSearch={listSearch} />
             {hasNextPage && (
               <button
                 type="button"
