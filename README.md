@@ -25,6 +25,7 @@ account **demo@bugbazaar.dev / password123**.
 | `npm run dev`          | Start the Vite dev server with hot reload and the mock API. |
 | `npm run build`        | Type-check, then build the production bundle into `dist/`.  |
 | `npm run preview`      | Serve the production build locally (mock API included).     |
+| `npm run typecheck`    | Run the TypeScript compiler in strict mode (no emit).       |
 | `npm run lint`         | Lint with oxlint. Warnings fail the run.                    |
 | `npm run format`       | Format every file with Prettier.                            |
 | `npm run format:check` | Check formatting without writing (used by CI).              |
