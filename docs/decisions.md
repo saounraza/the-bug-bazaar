@@ -55,3 +55,16 @@ dev`. Every environment variable has a working default, and `.env.example` docum
   injection, 401 handling and error normalization happen in exactly one function.
 - **Why one place matters:** adding a header, logging every failure or changing how a 401 is
   handled is a one-file change, and it's impossible for a component to forget a step.
+
+## D2-1 Product list
+
+- **Used:** React Router 8 (data router, so `<ScrollRestoration>` works), an RTK Query
+  **infinite query** for the list (pages of 60), and a details page at `/products/:id`.
+- **Prices:** stored and summed as integer cents. `formatPrice()` in `src/lib/money.ts` is the only
+  place that divides by 100, using `Intl.NumberFormat`. It throws on non-integers, so a float that
+  slips in fails loudly instead of showing `$24.990000001`.
+- **Keyboard:** each card has exactly one link (the product name) and a `::after` overlay makes the
+  whole card clickable. Tab moves card to card, Enter opens, and `:focus-within` draws a visible
+  ring around the whole card. After navigation, focus moves to the new page's `<h1>`.
+- **Considered:** wrapping the whole card in `<a>`. Screen readers would then read the name, price,
+  rating and stock as one long link name, and nested interactive content would be invalid.
