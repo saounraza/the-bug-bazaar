@@ -100,3 +100,19 @@ dev`. Every environment variable has a working default, and `.env.example` docum
   listener would be removed and re-added on every render, or would hold a stale closure.
 - **Considered:** `usehooks-ts`. These hooks are a few lines each, and writing them is the point of
   the exercise. Each one has tests in `src/hooks/hooks.test.ts`.
+
+## D2-2 Filters
+
+- **Used:** the URL query string as the **only** copy of the filters (`?q=&category=&sort=&inStock=1`),
+  read and written through `useProductFilters()`. The parsed filters object is the RTK Query
+  argument, so each distinct URL has its own cache entry.
+- **Refresh, shared link, Back:** all three work because nothing else holds filter state. Parsing
+  validates every value (`isCategory`, `isSortOption`), so a hand-edited URL like `?sort=lol` falls
+  back to the default instead of crashing. Defaults are left out of the URL, so the plain shop URL
+  stays `/`.
+- **History:** dropdowns and the checkbox push a history entry, so Back undoes them one at a time.
+  The search box pushes once when a search starts, then _replaces_ while you refine it. Otherwise
+  typing "keyboard" would leave 8 Back-button stops.
+- **Considered:** Redux or `useState` for filters, synced to the URL with an effect. That gives
+  two sources of truth and sync bugs (Back changes the URL but not the state). Keeping only the URL
+  avoids the whole class.
