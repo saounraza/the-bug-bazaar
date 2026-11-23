@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router';
+import { AuthNav } from '../features/auth/AuthNav';
 import { CartLink } from '../features/cart/CartLink';
 
 export function Layout() {
@@ -30,7 +31,7 @@ export function Layout() {
             <NavLink to="/" end>
               Shop
             </NavLink>
-            <NavLink to="/account">Account</NavLink>
+            <AuthNav />
             <CartLink />
           </nav>
         </div>

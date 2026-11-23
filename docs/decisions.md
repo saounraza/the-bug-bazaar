@@ -176,3 +176,12 @@ dev`. Every environment variable has a working default, and `.env.example` docum
 - **Considered:** Zustand or React Context. Context re-renders every consumer on any change, and
   Zustand would be fine, but the brief asks for RTK, and RTK Query shares the same store and
   DevTools timeline, so cart actions and API calls show up in one place.
+
+## D3-3 Auth
+
+- **Used:** a `session` slice, RTK Query `login` and `getMe` endpoints, a `<RequireAuth>` route
+  wrapper, and the client's `onUnauthorized` hook for global 401 handling. Full write-up, including
+  token storage and its trade-off, in [auth.md](auth.md).
+- **Considered:** redirecting from inside the HTTP client (`window.location = '/login'`). That
+  reloads the page and loses in-memory state. Clearing the session in Redux and letting
+  `<RequireAuth>` react keeps the redirect declarative and the "where you were" state intact.
