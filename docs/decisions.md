@@ -185,3 +185,25 @@ dev`. Every environment variable has a working default, and `.env.example` docum
 - **Considered:** redirecting from inside the HTTP client (`window.location = '/login'`). That
   reloads the page and loses in-memory state. Clearing the session in Redux and letting
   `<RequireAuth>` react keeps the redirect declarative and the "where you were" state intact.
+
+## D3-2 Cart
+
+- **Quantities can't exceed stock:** enforced in the reducers (`itemAdded`, `quantityChanged`
+  clamp to `line.stock`), not only by the input's `max`, because `max` doesn't stop typed or pasted
+  values. Stock limits stay current: fresh product data (`getProduct` fulfilled), a 409, and live
+  stock updates all dispatch `stockUpdated`, which lowers the quantity and tells the user why.
+- **Survives reload:** the cart is saved to localStorage by listener middleware and validated on
+  load (D3-1).
+- **409 names the item:** the API returns `details.productId` and `available`. The checkout uses
+  the name from the user's own cart line and lowers that line to what's available.
+- **No duplicate orders, two layers:**
+  1. _Client:_ the button is disabled while the request runs, and a ref rejects re-entry from a
+     double click.
+  2. _Server (the real guarantee):_ an **idempotency key**. The first "Place order" click creates a
+     UUID (`checkoutKeyIssued`), stored in the cart slice (so it survives a reload) and sent as the
+     `Idempotency-Key` header. A retry of the same cart reuses it, and the server returns the order
+     it already created for that key. Changing the cart clears the key, because it's a different
+     order. A test covers the worst case: the server saves the order but the response is lost (500),
+     the user clicks **Try again**, and stock is only decremented once.
+- **Considered:** disabling the button alone. That doesn't cover the lost-response case, a second
+  tab or a reload mid-request, and only a server-side key handles those.

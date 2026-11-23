@@ -1,6 +1,7 @@
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { Product } from '../../api/types';
 import { lineTotal } from '../../lib/money';
+import { productsApi } from '../products/productsApi';
 
 export type CartLine = {
   productId: string;
@@ -91,6 +92,15 @@ export const cartSlice = createSlice({
     cartCleared() {
       return initialCartState;
     },
+  },
+  extraReducers: (builder) => {
+    // Whenever fresh product data arrives, update the stock limit of that cart line.
+    builder.addMatcher(productsApi.endpoints.getProduct.matchFulfilled, (state, action) => {
+      cartSlice.caseReducers.stockUpdated(state, {
+        type: stockUpdated.type,
+        payload: { productId: action.payload.id, stock: action.payload.stock },
+      });
+    });
   },
 });
 
