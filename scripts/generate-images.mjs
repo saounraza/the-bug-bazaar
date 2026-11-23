@@ -2,7 +2,8 @@
 // Run with: node scripts/generate-images.mjs
 import { mkdirSync, writeFileSync } from 'node:fs';
 
-const backgrounds = ['#fde68a', '#bfdbfe', '#fbcfe8', '#bbf7d0'];
+// Warm tints that match the cream / ink / gold theme.
+const backgrounds = ['#f6e7bf', '#f5dcc8', '#e6eef6', '#efe6d6'];
 
 const art = {
   ducks: `

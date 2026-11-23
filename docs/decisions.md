@@ -412,3 +412,17 @@ dev`. Every environment variable has a working default, and `.env.example` docum
   never import `app/` at runtime", which was false (they import the typed hooks and
   `NotFoundPage`), so I rewrote that paragraph to describe the real rule. I also deleted unused
   helper exports from `lib/requestState.ts` so the doc and code match.
+
+## Visual theme (after D5)
+
+- **Used:** a warm editorial look modelled on lindy.ai's palette and shapes, read from their public
+  stylesheet: cream background `#FCFAF5`, navy ink `#0F1E2E` for text and primary buttons, warm
+  grey muted text, gold accents, pill buttons, 22 px cards with a soft layered shadow, and a
+  frosted sticky header. Tokens live in `:root`, and component styling is one "theme layer"
+  section at the end of `src/index.css`.
+- **Fonts:** their heading face (STK Bureau Serif) is a licensed commercial font, so I used
+  **Fraunces** from Google Fonts, a free serif with optical sizing, plus Inter for UI text. No
+  logos or brand assets were copied.
+- **Accessibility kept:** gold is only used as a fill (the cart badge, image tints). Gold *text*
+  uses a darker `#8A5A00` for AA contrast on cream, and the focus ring is blue (`#1E63D6`) because
+  gold on cream is under 3:1. Lighthouse is still 100 on home, cart and login.
