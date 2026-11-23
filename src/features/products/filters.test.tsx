@@ -16,7 +16,7 @@ describe('product filters', () => {
 
   it('writes filters to the URL and only shows matching products', async () => {
     const { user, router } = renderApp('/');
-    await screen.findByRole('list', { name: 'Products' });
+    await screen.findByRole('grid', { name: 'Products' });
 
     await user.selectOptions(screen.getByRole('combobox', { name: 'Category' }), 'coffee');
     await user.type(screen.getByRole('searchbox', { name: 'Search products' }), 'espresso');
@@ -24,7 +24,7 @@ describe('product filters', () => {
     await screen.findByText(/for “espresso”/, {}, { timeout: 3000 });
     const params = new URLSearchParams(router.state.location.search);
     expect(Object.fromEntries(params)).toEqual({ category: 'coffee', q: 'espresso' });
-    const names = within(screen.getByRole('list', { name: 'Products' }))
+    const names = within(screen.getByRole('grid', { name: 'Products' }))
       .getAllByRole('link')
       .map((link) => link.textContent?.toLowerCase());
     expect(names.every((name) => name?.includes('espresso'))).toBe(true);

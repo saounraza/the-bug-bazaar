@@ -1,14 +1,16 @@
+import { useCallback, useState } from 'react';
 import { useLocation } from 'react-router';
 import { AsyncView } from '../../components/AsyncView';
+import { BackToTop } from '../../components/BackToTop';
 import { EmptyState, GridSkeleton } from '../../components/StatusViews';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { toRequestState } from '../../lib/queryState';
 import { FilterBar } from './FilterBar';
-import { ProductGrid } from './ProductGrid';
-import { useGetProductsInfiniteQuery } from './productsApi';
 import { LiveStatus } from './LiveStatus';
+import { useGetProductsInfiniteQuery } from './productsApi';
 import { useProductFilters } from './useProductFilters';
 import { useStockFeed } from './useStockFeed';
+import { VirtualProductGrid } from './VirtualProductGrid';
 
 function resultLabel(total: number, search: string): string {
   const count = `${total.toLocaleString()} ${total === 1 ? 'result' : 'results'}`;
@@ -21,9 +23,14 @@ export function ProductListPage() {
   const { filters, updateFilters, clearFilters, isFiltered } = useProductFilters();
   const query = useGetProductsInfiniteQuery(filters);
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } = query;
-  const products = query.currentData?.pages.flatMap((page) => page.items) ?? [];
-  // Live updates for the first products in the list (the server caps a subscription at 500).
-  const liveStatus = useStockFeed(products.slice(0, 500).map((product) => product.id));
+
+  // Live stock only for the products actually on screen.
+  const [visibleIds, setVisibleIds] = useState<string[]>([]);
+  const liveStatus = useStockFeed(visibleIds);
+
+  const loadMore = useCallback(() => {
+    if (!isFetchingNextPage) void fetchNextPage();
+  }, [fetchNextPage, isFetchingNextPage]);
 
   return (
     <section>
@@ -60,20 +67,22 @@ export function ProductListPage() {
               </p>
               <LiveStatus status={liveStatus} />
             </div>
-            <ProductGrid products={products} listSearch={listSearch} />
-            {hasNextPage && (
-              <button
-                type="button"
-                className="button"
-                disabled={isFetchingNextPage}
-                onClick={() => void fetchNextPage()}
-              >
-                {isFetchingNextPage ? 'Loading…' : 'Load more'}
-              </button>
+            <VirtualProductGrid
+              products={data.pages.flatMap((page) => page.items)}
+              listSearch={listSearch}
+              hasMore={hasNextPage}
+              onEndReached={loadMore}
+              onVisibleIdsChange={setVisibleIds}
+            />
+            {isFetchingNextPage && (
+              <p className="hint" role="status">
+                Loading more products…
+              </p>
             )}
           </>
         )}
       </AsyncView>
+      <BackToTop />
     </section>
   );
 }

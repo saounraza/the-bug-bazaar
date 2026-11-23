@@ -11,7 +11,7 @@ describe('UI states', () => {
 
     setForcedError('listProducts', undefined);
     await user.click(screen.getByRole('button', { name: 'Try again' }));
-    expect(await screen.findByRole('list', { name: 'Products' })).toBeInTheDocument();
+    expect(await screen.findByRole('grid', { name: 'Products' })).toBeInTheDocument();
   });
 
   it('details: an unknown product shows the Not Found page', async () => {

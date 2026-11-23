@@ -52,7 +52,7 @@ describe('search race conditions', () => {
     await wait(400); // debounce fired, "rubber duck" is in flight
 
     // The "rubber" grid must not stay on screen under the "rubber duck" query.
-    expect(screen.queryByRole('list', { name: 'Products' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('grid', { name: 'Products' })).not.toBeInTheDocument();
     expect(screen.getByText('Loading products')).toBeInTheDocument();
     expect(await screen.findByText(/for “rubber duck”/, {}, { timeout: 2000 })).toBeInTheDocument();
   });

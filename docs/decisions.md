@@ -305,3 +305,17 @@ dev`. Every environment variable has a working default, and `.env.example` docum
   thread (name sort 29.7 ms → 0.12 ms median).
 - **Considered:** optimizing by guesswork (adding `useMemo` everywhere). Measuring showed the cost
   was in two specific places, and showed that flattening pages, the obvious candidate, costs 0.065 ms.
+
+## D4-3 Memoization and virtualization
+
+- **Used:** `@tanstack/react-virtual` with window scrolling for the product grid, `React.memo`
+  on `ProductCard`, and infinite loading when the rendered window is near the end. The full
+  justification table, including what I skipped or removed and why, is in
+  [performance.md](performance.md#d4-3-memoization-and-virtualization-justified).
+- **Accessibility kept:** virtualization removes off-screen cards from the DOM, which would break
+  Tab navigation (Tab would fall off the last rendered card). The grid uses `role="grid"` with a
+  roving tabindex: one Tab stop, and arrow keys, Home and End scroll the target row into view
+  before focusing it. Tests cover this.
+- **Considered:** `react-window` (fixed row heights, older API), CSS `content-visibility: auto`
+  (cuts paint cost but keeps all 3,000 cards in the DOM and in React's render), and pagination
+  with page numbers (simplest, but the brief asks for a smooth 5,000-item list).
