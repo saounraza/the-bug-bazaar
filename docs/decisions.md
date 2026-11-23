@@ -350,3 +350,35 @@ dev`. Every environment variable has a working default, and `.env.example` docum
 - **Considered:** `eslint-plugin-jsx-a11y` (oxlint's `jsx-a11y` plugin already runs on every lint)
   and axe in the unit tests (useful, but Lighthouse runs axe-core against the real built page, which
   catches things jsdom can't, like contrast).
+
+## D4-5 Testing
+
+- **Used:** Vitest + React Testing Library + `user-event`, with **MSW in Node running the same
+  handlers as the browser**. Most tests render the whole app (`src/test/renderApp.tsx`: real
+  store, real router, real HTTP client) at a URL, and interact the way a user does: by role,
+  label and text, never by class name or component internals.
+- **71 tests in 17 files** (`npm test`), covering every area the brief lists:
+
+  | Area            | File                                                              | Examples                                                                                                 |
+  | --------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+  | Cart logic      | `cart/cartSlice.test.ts`                                          | count and total derived in cents, clamp to stock, stock drop lowers quantity, checkout key reuse, reload |
+  | Custom hooks    | `hooks/hooks.test.ts`, `useProductFilters.test.ts`                | debounce publishes only the last value, timers cleared on unmount, listener removed on unmount           |
+  | Login           | `auth/auth.test.tsx`                                              | return-to after login, wrong password, 400 field errors announced, no double submit, 401 clears session  |
+  | Filtering       | `products/filters.test.tsx`                                       | URL restores filters, typing updates URL and results, empty state + clear, Back button                   |
+  | Checkout        | `orders/checkout.test.tsx`                                        | **successful order**, **409 names the item**, retried checkout creates no duplicate                      |
+  | Race conditions | `products/raceConditions.test.tsx`                                | late response for an old query never shown, no stale grid while loading                                  |
+  | Effects/cleanup | `products/detailsCleanup.test.tsx`                                | request for the old product is aborted, scroll listener removed                                          |
+  | Contract        | `mocks/contract.test.ts`                                          | every endpoint's shapes, statuses and listed errors                                                      |
+  | Plus            | caching, live stock, UI states, monitoring, money, client, errors |                                                                                                          |
+
+- **Behaviour, not implementation:** tests assert what a user sees (text, focus, URL, what the
+  server received), so refactors don't break them. For example, the virtualization refactor
+  only needed `role="list"` changed to `role="grid"`.
+- **Tests that prove they test something:** for the race-condition tests I reintroduced the bug
+  (`data` instead of `currentData`) and confirmed a test failed (D2-6).
+- **Flakiness:** whole-app tests running 16 at a time occasionally went past Testing Library's
+  1 s `findBy` wait. I raised it to 3 s globally rather than adding retries, and the suite then
+  passed 7 runs in a row.
+- **Considered:** Playwright end-to-end tests. They'd add real-browser coverage (layout, the
+  service worker), but they're slower and need a browser in CI. Integration tests against MSW gave
+  most of the confidence for much less cost. The Lighthouse run covers the built page.
