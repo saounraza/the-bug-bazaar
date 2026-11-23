@@ -1,4 +1,4 @@
-import { act, screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { delay, http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { queryProducts } from '../../mocks/db';
@@ -9,14 +9,20 @@ const wait = (ms: number) => act(() => new Promise((resolve) => setTimeout(resol
 
 describe('search race conditions', () => {
   it('an older, slower response never replaces results for the latest query', async () => {
+    const started: string[] = [];
     const completed: string[] = [];
-    // Older queries are slower: "du" takes 800 ms, "duck" takes 50 ms,
-    // so the responses come back in the opposite order to the requests.
+    // A gate instead of fixed delays: the "du" response is held until the
+    // "duck" response has been sent, so the responses are *guaranteed* to
+    // arrive in the opposite order to the requests, however slow the machine.
+    let releaseOldQuery!: () => void;
+    const duckSent = new Promise<void>((resolve) => (releaseOldQuery = resolve));
     server.use(
       http.get('*/api/products', async ({ request }) => {
         const search = new URL(request.url).searchParams.get('search') ?? '';
-        await delay(search === 'du' ? 800 : 50);
+        started.push(search);
+        if (search === 'du') await duckSent;
         completed.push(search);
+        if (search === 'duck') setTimeout(releaseOldQuery, 50);
         return HttpResponse.json(queryProducts({ search, pageSize: 60 }));
       }),
     );
@@ -26,11 +32,12 @@ describe('search race conditions', () => {
     const input = screen.getByRole('searchbox', { name: 'Search products' });
 
     await user.type(input, 'du');
-    await wait(350); // debounce fires, the slow "du" request starts
+    await waitFor(() => expect(started).toContain('du')); // debounce fired, "du" is in flight
     await user.type(input, 'ck');
-    expect(await screen.findByText(/for “duck”/, {}, { timeout: 2000 })).toBeInTheDocument();
+    expect(await screen.findByText(/for “duck”/)).toBeInTheDocument();
 
-    await wait(900); // now the stale "du" response arrives
+    await waitFor(() => expect(completed).toContain('du')); // the stale response lands
+    await wait(50); // give React a moment to (wrongly) render it, if it were going to
     expect(completed).toEqual(['', 'duck', 'du']);
     expect(screen.getByText(/results for “duck”/)).toBeInTheDocument();
     expect(screen.queryByText(/for “du”/)).not.toBeInTheDocument();
