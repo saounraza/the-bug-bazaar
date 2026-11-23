@@ -319,3 +319,14 @@ dev`. Every environment variable has a working default, and `.env.example` docum
 - **Considered:** `react-window` (fixed row heights, older API), CSS `content-visibility: auto`
   (cuts paint cost but keeps all 3,000 cards in the DOM and in React's render), and pagination
   with page numbers (simplest, but the brief asks for a smooth 5,000-item list).
+
+## D4-7 Monitoring
+
+- **Used:** a hand-written `ErrorBoundary` class (React only offers boundaries as class
+  components) at three levels (page, route, root), global `error` and `unhandledrejection`
+  handlers, an RTK middleware that logs 5xx and network API failures, and one `logError()`
+  function that everything goes through. Details and the three metrics I'd track are in
+  [monitoring.md](monitoring.md).
+- **Considered:** `react-error-boundary` (nice API, but it's about 30 lines to write and explain
+  myself) and Sentry (the right choice for a real launch, but it needs an account and a DSN, and
+  `logError` is shaped so swapping it in is a one-file change).

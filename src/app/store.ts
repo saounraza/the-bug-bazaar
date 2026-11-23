@@ -4,6 +4,7 @@ import { api } from '../api/baseApi';
 import { configureClient } from '../api/client';
 import { sessionExpired, sessionSlice, selectToken } from '../features/auth/sessionSlice';
 import { cartSlice } from '../features/cart/cartSlice';
+import { apiErrorLogger } from './apiErrorLogger';
 import { saveCart, saveSession } from './persistence';
 
 const rootReducer = combineReducers({
@@ -33,7 +34,8 @@ export function makeStore(preloadedState?: Partial<RootState>) {
   const store = configureStore({
     reducer: rootReducer,
     preloadedState,
-    middleware: (getDefault) => getDefault().prepend(listener.middleware).concat(api.middleware),
+    middleware: (getDefault) =>
+      getDefault().prepend(listener.middleware).concat(api.middleware, apiErrorLogger),
   });
 
   setupListeners(store.dispatch);

@@ -9,6 +9,7 @@ import { OrderPage } from '../features/orders/OrderPage';
 import { ProductDetailsPage } from '../features/products/ProductDetailsPage';
 import { ProductListPage } from '../features/products/ProductListPage';
 import { Layout } from './Layout';
+import { RouteErrorFallback } from './RouteErrorFallback';
 import { NotFoundPage } from './NotFoundPage';
 
 const protect = (page: ReactNode) => <RequireAuth>{page}</RequireAuth>;
@@ -16,6 +17,8 @@ const protect = (page: ReactNode) => <RequireAuth>{page}</RequireAuth>;
 export const routes: RouteObject[] = [
   {
     element: <Layout />,
+    // Errors outside the page boundary (e.g. in the layout itself) land here.
+    errorElement: <RouteErrorFallback />,
     children: [
       { index: true, element: <ProductListPage /> },
       { path: 'products/:id', element: <ProductDetailsPage /> },

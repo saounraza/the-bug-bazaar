@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { AuthNav } from '../features/auth/AuthNav';
+import { CrashTrigger } from '../features/devtools/CrashTrigger';
 import { CartLink } from '../features/cart/CartLink';
 
 // Loaded only when the mock API is on, so it never ships to a real-backend build's main chunk.
@@ -41,7 +43,11 @@ export function Layout() {
         </div>
       </header>
       <main id="main" ref={mainRef} className="main">
-        <Outlet />
+        {/* A crash inside a page keeps the header and cart usable, and resets on navigation. */}
+        <ErrorBoundary resetKey={pathname}>
+          <Outlet />
+          <CrashTrigger />
+        </ErrorBoundary>
       </main>
       <footer className="footer">
         <p>The Bug Bazaar · Prices in USD · Demo store, no real orders.</p>

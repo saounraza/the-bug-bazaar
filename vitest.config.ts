@@ -8,5 +8,7 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     css: false,
     restoreMocks: true,
+    // Integration tests render the whole app against MSW; some wait on real timers.
+    testTimeout: 15_000,
   },
 });
