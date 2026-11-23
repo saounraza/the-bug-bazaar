@@ -8,14 +8,54 @@
   "rules": {
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true
+      }
+    ],
     "react/react-in-jsx-scope": "off",
     "typescript/no-explicit-any": "error",
     "typescript/ban-ts-comment": "error",
     "typescript/consistent-type-imports": "error",
-    "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
+    "no-console": [
+      "warn",
+      {
+        "allow": ["warn", "error", "info"]
+      }
+    ],
     "import/no-cycle": "error",
-    "import/no-unassigned-import": "off"
+    "import/no-unassigned-import": "off",
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "fetch",
+        "message": "Use request() from src/api/client.ts. Components never call the network directly."
+      },
+      {
+        "name": "WebSocket",
+        "message": "Use the stock feed in src/api/stockFeed.ts."
+      },
+      {
+        "name": "XMLHttpRequest",
+        "message": "Use request() from src/api/client.ts."
+      }
+    ]
   },
-  "ignorePatterns": ["dist", "public/mockServiceWorker.js"]
+  "ignorePatterns": ["dist", "public/mockServiceWorker.js"],
+  "overrides": [
+    {
+      "files": [
+        "src/api/client.ts",
+        "src/api/stockFeed.ts",
+        "src/mocks/**",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "src/test/**"
+      ],
+      "rules": {
+        "no-restricted-globals": "off"
+      }
+    }
+  ]
 }
