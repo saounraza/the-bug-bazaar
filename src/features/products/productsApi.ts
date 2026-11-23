@@ -3,6 +3,10 @@ import type { Category, Product, ProductPage, SortOption } from '../../api/types
 
 export const PAGE_SIZE = 60;
 
+/** How long (seconds) unused cache entries are kept. See docs/decisions.md, D3-5. */
+export const LIST_CACHE_SECONDS = 120;
+export const PRODUCT_CACHE_SECONDS = 300;
+
 /** Everything that selects a result set. One cache entry per distinct value. */
 export type ProductFilters = {
   search: string;
@@ -31,11 +35,13 @@ export const productsApi = api.injectEndpoints({
         },
       }),
       providesTags: ['ProductList'],
+      keepUnusedDataFor: LIST_CACHE_SECONDS,
     }),
 
     getProduct: build.query<Product, string>({
       query: (id) => ({ url: `/api/products/${encodeURIComponent(id)}` }),
       providesTags: (_result, _error, id) => [{ type: 'Product', id }],
+      keepUnusedDataFor: PRODUCT_CACHE_SECONDS,
     }),
   }),
 });

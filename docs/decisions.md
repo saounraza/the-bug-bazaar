@@ -234,3 +234,33 @@ dev`. Every environment variable has a working default, and `.env.example` docum
 - **Considered:** a global toast for every error. Toasts are easy to miss and hard for screen
   readers to reach. Errors belong next to what failed: the form field, the list, the checkout
   button.
+
+## D3-5 Caching
+
+- **Used:** RTK Query's normalized-by-argument cache with tags.
+  - **Reuse:** each query is cached by its arguments. Revisiting a product, or going Back to a
+    search, renders straight from the cache with no request and no spinner (both tested). Unused
+    entries stay for `keepUnusedDataFor`: **300 s** for product details, **120 s** for list pages.
+  - **Refresh after an order:** `createOrder` invalidates `ProductList` plus a
+    `{ type: 'Product', id }` tag for each ordered product. A 409 invalidates the product that ran
+    out. Anything on screen refetches at once, and anything off screen refetches next time it's
+    shown. A test orders 1 of 10 and checks that the product page then shows 9.
+  - **Background freshness:** `refetchOnReconnect`, plus live stock updates (D4-4) patching the
+    cache as stock changes.
+- **When stale data is acceptable, and when it isn't:**
+
+  | Data                       | Stale OK?    | Why                                                                                                    |
+  | -------------------------- | ------------ | ------------------------------------------------------------------------------------------------------ |
+  | Name, price, image, rating | Yes, minutes | Rarely changes. A slightly old rating harms no one.                                                    |
+  | Stock on the grid          | Yes, briefly | It's a hint, and live updates narrow the gap.                                                          |
+  | Stock **at checkout**      | **No**       | The server is the authority. It re-checks every line and answers 409, so a stale cache can't oversell. |
+  | Price **at checkout**      | No           | A real server would re-price the order. We'd show a "price changed" step.                              |
+  | Order status               | No           | Polled every 1.5 s until confirmed.                                                                    |
+  | The signed-in user (`/me`) | No           | `refetchOnMountOrArgChange` on the account page; this is how an expired token shows up.                |
+
+  The rule I use: cached data can be stale wherever being wrong only costs a moment's confusion.
+  Anything that moves money or stock is validated by the server at the moment of the write.
+
+- **Considered:** TanStack Query (very similar, but RTK Query is already in the store for D3-1),
+  and hand-rolled caching in a slice (it would mean re-implementing de-duplication, expiry and
+  invalidation).

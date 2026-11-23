@@ -29,5 +29,7 @@ export const api = createApi({
   reducerPath: 'api',
   baseQuery: clientBaseQuery,
   tagTypes: ['Product', 'ProductList', 'Me', 'Order'],
+  // Coming back online refetches whatever is on screen (needs setupListeners in the store).
+  refetchOnReconnect: true,
   endpoints: () => ({}),
 });

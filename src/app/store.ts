@@ -1,4 +1,5 @@
 import { combineReducers, configureStore, createListenerMiddleware } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import { api } from '../api/baseApi';
 import { configureClient } from '../api/client';
 import { sessionExpired, sessionSlice, selectToken } from '../features/auth/sessionSlice';
@@ -34,6 +35,8 @@ export function makeStore(preloadedState?: Partial<RootState>) {
     preloadedState,
     middleware: (getDefault) => getDefault().prepend(listener.middleware).concat(api.middleware),
   });
+
+  setupListeners(store.dispatch);
 
   // The HTTP client reads the token and reports 401s through these callbacks,
   // so it never imports the store (no circular dependency).
