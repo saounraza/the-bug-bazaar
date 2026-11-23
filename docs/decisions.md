@@ -158,3 +158,21 @@ dev`. Every environment variable has a working default, and `.env.example` docum
   It saves bandwidth, but the old response is already harmless here, and keeping it cached makes
   Back to a previous search instant. A hand-rolled version would use a request counter
   (`if (id !== latestId) return`) or an abort, and both are explained in `glossary.md`.
+
+## D3-1 Redux Toolkit
+
+- **Used:** two slices, `cart` and `session`, next to RTK Query's `api` slice in one store. State
+  only changes through the slice actions (`itemAdded`, `quantityChanged`, `itemRemoved`,
+  `stockUpdated`, `checkoutKeyIssued`, `cartCleared`, `loggedIn`, `loggedOut`, `sessionExpired`).
+  Immer lets reducers read as mutations while staying immutable.
+- **Derived values:** `selectCartCount` and `selectCartTotal` are memoized `createSelector`s over
+  `lines`. The header badge reads `selectCartCount`. The count is never stored, so it can't drift
+  from the lines.
+- **Side effects outside reducers:** a listener middleware saves `cart` and `session` to
+  localStorage whenever they change. The random checkout key is created in a `prepare` callback.
+  Reducers stay pure and deterministic, which keeps them easy to test.
+- **Session as a union:** `{ status: 'anonymous', notice } | { status: 'authenticated', token, user }`.
+  "Token but no user" is impossible to represent.
+- **Considered:** Zustand or React Context. Context re-renders every consumer on any change, and
+  Zustand would be fine, but the brief asks for RTK, and RTK Query shares the same store and
+  DevTools timeline, so cart actions and API calls show up in one place.

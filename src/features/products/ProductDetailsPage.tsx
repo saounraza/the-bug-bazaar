@@ -6,6 +6,7 @@ import { BackToTop } from '../../components/BackToTop';
 import { Price } from '../../components/Price';
 import { Rating } from '../../components/Rating';
 import { StockBadge } from '../../components/StockBadge';
+import { AddToCart } from '../cart/AddToCart';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { toRequestState } from '../../lib/queryState';
 import { ProductGrid } from './ProductGrid';
@@ -71,6 +72,7 @@ export function ProductDetailsPage() {
                 <Price cents={product.price} className="price price--large" />
                 <Rating value={product.rating} />
                 <StockBadge stock={product.stock} />
+                <AddToCart key={product.id} product={product} />
               </div>
             </article>
             <RelatedProducts product={product} />

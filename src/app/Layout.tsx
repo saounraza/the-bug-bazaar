@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router';
+import { CartLink } from '../features/cart/CartLink';
 
 export function Layout() {
   const { pathname } = useLocation();
@@ -30,7 +31,7 @@ export function Layout() {
               Shop
             </NavLink>
             <NavLink to="/account">Account</NavLink>
-            <NavLink to="/cart">Cart</NavLink>
+            <CartLink />
           </nav>
         </div>
       </header>
