@@ -378,7 +378,7 @@ dev`. Every environment variable has a working default, and `.env.example` docum
   (`data` instead of `currentData`) and confirmed a test failed (D2-6).
 - **Flakiness:** whole-app tests running 16 at a time occasionally went past Testing Library's
   1 s `findBy` wait. I raised it to 3 s globally rather than adding retries, and the suite then
-  passed 7 runs in a row.
+  passed every full run since (6 at the time of writing).
 - **Considered:** Playwright end-to-end tests. They'd add real-browser coverage (layout, the
   service worker), but they're slower and need a browser in CI. Integration tests against MSW gave
   most of the confidence for much less cost. The Lighthouse run covers the built page.
