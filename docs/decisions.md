@@ -207,3 +207,30 @@ dev`. Every environment variable has a working default, and `.env.example` docum
      the user clicks **Try again**, and stock is only decremented once.
 - **Considered:** disabling the button alone. That doesn't cover the lost-response case, a second
   tab or a reload mid-request, and only a server-side key handles those.
+
+## D3-4 Backend errors
+
+- **One pipeline:** `fetch` → `request()` → `fromHttpResponse()` → a typed `AppError` → the UI.
+  Every error passes through the same three functions in `src/api/errors.ts` and
+  `src/api/client.ts`.
+
+  | Status | `AppError.kind`                    | What the user sees                                                     |
+  | ------ | ---------------------------------- | ---------------------------------------------------------------------- |
+  | 400    | `validation` (field → code)        | Message under each field, `aria-invalid`, focus on the first bad field |
+  | 401    | `unauthorized`                     | Session cleared, redirect to sign in with "Your session expired"       |
+  | 401    | `invalid-credentials` (login only) | "That email and password do not match."                                |
+  | 404    | `not-found`                        | The Not Found page                                                     |
+  | 409    | `out-of-stock`                     | Names the item, lowers its quantity, links to the cart                 |
+  | 500    | `server`                           | "Something went wrong" with **Try again**                              |
+  | none   | `network`                          | "You seem to be offline" with **Try again**                            |
+
+- **Raw messages can't reach the screen, by construction:** `AppError` has **no `message`
+  field**. The server's `error.message` is dropped in `fromHttpResponse()`, and all copy comes from
+  `describeError()` and `fieldMessage()`. Field details arrive as codes (`invalid_email`) that we
+  translate, and unknown codes fall back to a generic sentence. A test feeds a SQL error string
+  through every status and checks it never appears.
+- **Triggering on purpose:** the **Mock controls** panel (bug button, bottom right) can force any
+  endpoint to return any of its documented errors.
+- **Considered:** a global toast for every error. Toasts are easy to miss and hard for screen
+  readers to reach. Errors belong next to what failed: the form field, the list, the checkout
+  button.
