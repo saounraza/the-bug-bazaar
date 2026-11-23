@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300"><rect width="400" height="300" fill="#bbf7d0"/>
+    <g transform="rotate(-8 200 180)">
+      <rect x="95" y="90" width="210" height="160" rx="24" fill="#ffffff" stroke="#1f2937" stroke-width="6"/>
+      <text x="200" y="185" font-family="monospace" font-size="54" font-weight="700" text-anchor="middle" fill="#dc2626">&lt;/bug&gt;</text>
+    </g></svg>

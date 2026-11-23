@@ -27,6 +27,8 @@ account **demo@bugbazaar.dev / password123**.
 | `npm run preview`      | Serve the production build locally (mock API included).     |
 | `npm run typecheck`    | Run the TypeScript compiler in strict mode (no emit).       |
 | `npm run lint`         | Lint with oxlint. Warnings fail the run.                    |
+| `npm test`             | Run the Vitest suite once (jsdom + MSW).                    |
+| `npm run test:watch`   | Run Vitest in watch mode.                                   |
 | `npm run format`       | Format every file with Prettier.                            |
 | `npm run format:check` | Check formatting without writing (used by CI).              |
 

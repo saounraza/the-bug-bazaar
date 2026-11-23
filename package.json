@@ -10,7 +10,9 @@
     "lint": "oxlint --deny-warnings",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json"
+    "typecheck": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
@@ -39,5 +41,10 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
