@@ -83,3 +83,20 @@ dev`. Every environment variable has a working default, and `.env.example` docum
   union means TypeScript complains if a state is left out.
 - `role="status"` over `<output>`: `<output>` is meant for the result of a calculation in a form,
   so I turned off oxlint's `prefer-tag-over-role` rule.
+
+## D2-5 Custom hooks
+
+| Hook                                       | Replaces                                                                                     | Used by                                                   |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `useDebouncedValue(value, ms)`             | A `setTimeout`/`clearTimeout` pair in every input that waits for typing to stop              | Search box                                                |
+| `useEventListener(type, handler, target?)` | `addEventListener` + matching `removeEventListener` in an effect, with a ref for the handler | Back to Top, stock feed (`online`, `pagehide`), grid keys |
+| `useDocumentTitle(title)`                  | `document.title = ...` copied into each page                                                 | Every page                                                |
+| `useProductFilters()` (D2-2)               | Parsing and writing filter params in the URL                                                 | Product list and filter bar                               |
+
+- **Typed:** generics carry the value type through (`useDebouncedValue<T>`), and
+  `useEventListener<K extends keyof WindowEventMap>` gives the handler the right event type
+  (`'scroll'` → `Event`, `'keydown'` → `KeyboardEvent`).
+- **Why a ref in `useEventListener`:** callers pass inline functions. Without the ref, the
+  listener would be removed and re-added on every render, or would hold a stale closure.
+- **Considered:** `usehooks-ts`. These hooks are a few lines each, and writing them is the point of
+  the exercise. Each one has tests in `src/hooks/hooks.test.ts`.

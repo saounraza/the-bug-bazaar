@@ -1,5 +1,6 @@
 import { AsyncView } from '../../components/AsyncView';
 import { EmptyState, GridSkeleton } from '../../components/StatusViews';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { toRequestState } from '../../lib/queryState';
 import { ProductGrid } from './ProductGrid';
 import { useGetProductsInfiniteQuery, type ProductFilters } from './productsApi';
@@ -12,6 +13,7 @@ const DEFAULT_FILTERS: ProductFilters = {
 };
 
 export function ProductListPage() {
+  useDocumentTitle('Shop');
   const query = useGetProductsInfiniteQuery(DEFAULT_FILTERS);
   const { hasNextPage, fetchNextPage, isFetchingNextPage, refetch } = query;
 

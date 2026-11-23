@@ -1,8 +1,10 @@
 import { Link } from 'react-router';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 type NotFoundPageProps = { what?: string };
 
 export function NotFoundPage({ what = 'page' }: NotFoundPageProps) {
+  useDocumentTitle('Not found');
   return (
     <section className="status status--centered">
       <p className="status__icon" aria-hidden="true">

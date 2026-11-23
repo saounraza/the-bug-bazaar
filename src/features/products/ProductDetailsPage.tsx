@@ -4,6 +4,7 @@ import { AsyncView } from '../../components/AsyncView';
 import { Price } from '../../components/Price';
 import { Rating } from '../../components/Rating';
 import { StockBadge } from '../../components/StockBadge';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { toRequestState } from '../../lib/queryState';
 import { useGetProductQuery } from './productsApi';
 
@@ -12,6 +13,7 @@ export function ProductDetailsPage() {
   const location = useLocation();
   const listSearch = (location.state as { listSearch?: string } | null)?.listSearch ?? '';
   const query = useGetProductQuery(id);
+  useDocumentTitle(query.currentData?.name ?? 'Product');
 
   return (
     <section>
