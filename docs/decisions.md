@@ -401,3 +401,14 @@ dev`. Every environment variable has a working default, and `.env.example` docum
 - **Considered:** Vercel or Netlify (zero-config previews for every PR, but they need a
   third-party account), and running Lighthouse in CI (useful, but slow and noisy on shared
   runners, so it's a manual `npm run a11y` for now).
+
+## D5-1 and D5-2 Architecture and design patterns
+
+- **Wrote:** [ARCHITECTURE.md](ARCHITECTURE.md): folder structure, a Mermaid data-flow diagram
+  (it renders on GitHub), one request traced end to end, a state table (server / client / URL /
+  local / mock), the choice I'd defend (filters live only in the URL), and three patterns with
+  where and why (adapter, container/presentational, custom hooks).
+- **Kept honest:** I checked the doc's claims against the code. The first draft said "features
+  never import `app/` at runtime", which was false (they import the typed hooks and
+  `NotFoundPage`), so I rewrote that paragraph to describe the real rule. I also deleted unused
+  helper exports from `lib/requestState.ts` so the doc and code match.
