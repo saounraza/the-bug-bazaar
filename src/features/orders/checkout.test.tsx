@@ -86,12 +86,12 @@ describe('checkout', () => {
     const { user, store } = renderCheckout([{ id: 'p-0002', quantity: 1 }]);
     await screen.findByRole('button', { name: 'Place order' });
 
-    await user.click(screen.getByRole('link', { name: /cart, 1 item/i }));
+    await user.click(screen.getByRole('link', { name: /cart 1 item/i }));
     const input = await screen.findByRole('spinbutton', { name: 'Quantity' });
     await user.clear(input);
     await user.type(input, '9');
 
     expect(store.getState().cart.lines[0]?.quantity).toBe(3);
-    expect(screen.getByRole('link', { name: /cart, 3 items/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /cart 3 items/i })).toBeInTheDocument();
   });
 });

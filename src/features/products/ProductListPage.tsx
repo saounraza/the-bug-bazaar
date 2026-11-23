@@ -67,6 +67,7 @@ export function ProductListPage() {
               </p>
               <LiveStatus status={liveStatus} />
             </div>
+            <h2 className="visually-hidden">Products</h2>
             <VirtualProductGrid
               products={data.pages.flatMap((page) => page.items)}
               listSearch={listSearch}

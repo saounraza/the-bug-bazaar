@@ -25,7 +25,7 @@ describe('monitoring', () => {
     expect(entry?.componentStack).toBeTruthy();
 
     // The header (and cart) still work, and navigating away clears the crash.
-    expect(screen.getByRole('link', { name: /cart, 0 items/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /cart 0 items/i })).toBeInTheDocument();
     await act(() => router.navigate('/cart'));
     expect(await screen.findByRole('heading', { name: 'Your cart' })).toBeInTheDocument();
   });

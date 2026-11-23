@@ -330,3 +330,23 @@ dev`. Every environment variable has a working default, and `.env.example` docum
 - **Considered:** `react-error-boundary` (nice API, but it's about 30 lines to write and explain
   myself) and Sentry (the right choice for a real launch, but it needs an account and a DSN, and
   `logError` is shaped so swapping it in is a one-file change).
+
+## D4-1 Accessibility
+
+- **Result:** Lighthouse accessibility **100** on home, cart and login (production build,
+  `npm run a11y`). The first run scored 95 / 100 / 100 and found three real issues, now fixed:
+  `aria-label` on a plain `<span>` (the rating), a heading jump from `<h1>` to card `<h3>`s, and
+  the cart link's label not containing its visible text (which breaks voice control).
+- **Keyboard:** skip link, visible focus ring everywhere (`:focus-visible`, 3 px amber), focus
+  moves to the page `<h1>` after navigation, the product grid is one Tab stop with arrow-key
+  navigation (D4-3), Back to Top also moves focus, and every control is a real `<button>`,
+  `<a>` or form element.
+- **Screen readers:** form errors are announced (a `role="alert"` region plus
+  `aria-invalid`/`aria-describedby` on each field, and focus moves to the first invalid field),
+  loading and result counts use `role="status"`, ratings and the cart badge have hidden text, and
+  decorative images and emoji are `alt=""` / `aria-hidden`.
+- **Also:** `prefers-reduced-motion` turns off animations and smooth scrolling, the colors pass
+  WCAG AA contrast, and touch targets are at least 44 px.
+- **Considered:** `eslint-plugin-jsx-a11y` (oxlint's `jsx-a11y` plugin already runs on every lint)
+  and axe in the unit tests (useful, but Lighthouse runs axe-core against the real built page, which
+  catches things jsdom can't, like contrast).

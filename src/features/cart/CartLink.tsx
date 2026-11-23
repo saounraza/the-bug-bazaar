@@ -4,12 +4,13 @@ import { selectCartCount } from './cartSlice';
 
 export function CartLink() {
   const count = useAppSelector(selectCartCount);
-  const label = count === 1 ? '1 item' : `${count} items`;
+  // The accessible name ("Cart 3 items") starts with the visible text ("Cart 3"),
+  // so voice-control users can say what they see.
   return (
-    <NavLink to="/cart" aria-label={`Cart, ${label}`}>
-      <span aria-hidden="true">🛒</span> Cart
-      <span className="cart-badge" aria-hidden="true">
-        {count}
+    <NavLink to="/cart">
+      <span aria-hidden="true">🛒</span> Cart{' '}
+      <span className="cart-badge">
+        {count} <span className="visually-hidden">{count === 1 ? 'item' : 'items'}</span>
       </span>
     </NavLink>
   );

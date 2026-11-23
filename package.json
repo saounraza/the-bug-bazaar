@@ -13,7 +13,8 @@
     "typecheck": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "perf": "vitest run --config vitest.perf.config.ts"
+    "perf": "vitest run --config vitest.perf.config.ts",
+    "a11y": "node scripts/lighthouse-a11y.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.15.0",
@@ -33,6 +34,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "jsdom": "^31.0.1",
+    "lighthouse": "^13.6.0",
     "msw": "^3.0.7",
     "oxlint": "^1.90.0",
     "prettier": "^3.10.1",
